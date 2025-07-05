@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live QR Code Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('Media/ChatGPT Image Apr 11, 2025, 12_33_26 PM.png') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    input[type="text"] {
+      width: 320px;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      outline: none;
+    }
+
+#qrcode {
+    margin: 20px auto;
+    padding: 15px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 240px;
+    height: 240px;
+}
+
+    #qrcode:hover {
+      transform: scale(1.03);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    #qrcode img, #qrcode canvas {
+      border-radius: 10px;
+      max-width: 100%;
+      height: auto;
+      align-items: center;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #1e88e5;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay">
+    <h1>Live QR Code Generator</h1>
+    <input type="text" id="text-input" placeholder="Enter text or URL..." />
+    <div id="qrcode"></div>
+
+    <div class="btn-group">
+      <button onclick="downloadQR()">Download</button>
+      <button onclick="shareQR()">Share</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script>
+    const input = document.getElementById("text-input");
+    const qrContainer = document.getElementById("qrcode");
+
+    let qrCode = new QRCode(qrContainer, {
+      text: "",
+      width: 200,
+      height: 200,
+    });
+
+    input.addEventListener("input", () => {
+      qrContainer.innerHTML = "";
+      qrCode = new QRCode(qrContainer, {
+        text: input.value,
+        width: 200,
+        height: 200,
+      });
+    });
+
+    function downloadQR() {
+      const canvas = qrContainer.querySelector("canvas");
+      if (canvas) {
+        const link = document.createElement('a');
+        link.download = "qrcode.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }
+    }
+
+    async function shareQR() {
+      const canvas = qrContainer.querySelector("canvas");
+      if (navigator.canShare && canvas) {
+        canvas.toBlob(async (blob) => {
+          const file = new File([blob], "qrcode.png", { type: "image/png" });
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'My QR Code',
+              text: 'Here is a QR Code I generated!',
+            });
+          } catch (err) {
+            alert("Sharing failed: " + err);
+          }
+        });
+      } else {
+        alert("Your browser does not support sharing images via Web Share API.");
+      }
+    }
+  </script>
+</body>
+</html>
